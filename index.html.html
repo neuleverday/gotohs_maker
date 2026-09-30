@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>핑담곰 회식가자</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary-color: #3182F6;
+    --primary-color-light: #EAF2FF;
+    --honey: #FFB020;
+    --honey-light: #FFF7E8;
+    --bg: #F7F8FA;
+    --card-bg: #FFFFFF;
+    --border: #E7E9EC;
+    --text-main: #1C1F24;
+    --text-sub: #78808A;
+    --text-faint: #C2C7CE;
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --radius-sm: 11px;
+    --shadow: 0 3px 14px rgba(60, 40, 20, 0.06), 0 1px 3px rgba(60,40,20,0.05);
+    --shadow-hover: 0 10px 26px rgba(60, 40, 20, 0.10);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button { font-family: inherit; cursor: pointer; }
+  input, select, textarea { font-family: inherit; }
+  .heading-font { font-family: "Jua", -apple-system, sans-serif; }
+
+  /* ===== Header ===== */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .topbar h1 {
+    font-size: 21px; font-weight: 400; margin: 0;
+    letter-spacing: -0.2px;
+    color: var(--text-main);
+  }
+  .autosave-badge {
+    font-size: 12px; color: var(--text-sub);
+    display: flex; align-items: center; gap: 4px;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .autosave-badge.show { opacity: 1; }
+  .autosave-badge svg { width: 13px; height: 13px; }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .theme-picker { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-sub); }
+  .color-swatch-input {
+    width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border);
+    padding: 0; cursor: pointer; overflow: hidden; background: none;
+  }
+  .color-swatch-input::-webkit-color-swatch-wrapper { padding: 0; }
+  .color-swatch-input::-webkit-color-swatch { border: none; border-radius: 50%; }
+
+  .icon-btn {
+    height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border);
+    background: #fff; display: flex; align-items: center; justify-content: center; gap: 6px;
+    color: var(--text-sub); transition: background 0.15s, transform 0.1s; font-size: 12.5px; font-weight: 700;
+  }
+  .icon-btn:hover { background: var(--bg); }
+  .icon-btn:active { transform: scale(0.96); }
+  .icon-btn.export { background: var(--text-main); color: #fff; border-color: var(--text-main); }
+  .icon-btn.export:hover { filter: brightness(1.15); }
+  .icon-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ===== Layout ===== */
+  .app-layout {
+    display: grid;
+    grid-template-columns: minmax(360px, 430px) 1fr;
+    gap: 24px;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px 28px 80px;
+    align-items: start;
+  }
+
+  @media (max-width: 880px) {
+    .app-layout { grid-template-columns: 1fr; padding: 16px; }
+    .topbar { padding: 12px 16px; }
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar { position: sticky; top: 74px; }
+  .sidebar-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
+  }
+  .sidebar-title { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; }
+  .sidebar-count { font-size: 12.5px; color: var(--text-sub); font-weight: 600; background: var(--honey-light); padding: 2px 9px; border-radius: 999px; }
+
+  .btn-primary {
+    background: var(--primary-color); color: #fff; border: none;
+    border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: filter 0.15s, transform 0.1s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  }
+  .btn-primary:hover { filter: brightness(0.95); }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--border); color: var(--text-sub);
+    border-radius: 999px; padding: 8px 14px; font-size: 12.5px; font-weight: 700;
+  }
+  .btn-ghost:hover { background: var(--bg); border-color: var(--primary-color); color: var(--primary-color); }
+
+  .char-list { display: grid; grid-template-columns: 1fr; gap: 12px; max-height: 58vh; overflow-y: auto; padding-right: 6px; scrollbar-width: thin; }
+  .char-list::-webkit-scrollbar { width: 6px; }
+  .char-list::-webkit-scrollbar-thumb { background: var(--text-faint); border-radius: 999px; }
+  .char-list::-webkit-scrollbar-track { background: transparent; }
+  @media (max-width: 1180px) { .char-list { grid-template-columns: 1fr; } }
+
+  .char-card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow); padding: 18px; position: relative;
+    border-left: 4px solid var(--char-color, var(--primary-color));
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .char-card:hover { box-shadow: var(--shadow-hover); }
+  .char-card-top { display: flex; align-items: flex-start; gap: 14px; }
+  .char-avatar-wrap { position: relative; flex-shrink: 0; }
+  .char-avatar {
+    width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+    border: 2px solid var(--char-color, var(--border));
+    background: #F3ECE4;
+  }
+  .char-avatar-placeholder {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 2px solid var(--char-color, var(--border));
+    background: #F3ECE4; display: flex; align-items: center; justify-content: center;
+    color: #C9BEB2; font-size: 27px;
+  }
+  .avatar-upload-btn {
+    position: absolute; bottom: -2px; right: -2px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #fff; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-sub); box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .avatar-upload-btn input { display: none; }
+  .avatar-upload-btn svg { width: 12px; height: 12px; }
+
+  .char-fields { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+
+  .field-mini { display: flex; flex-direction: column; gap: 3px; }
+  .field-mini > span {
+    font-size: 10.5px; color: var(--text-faint); font-weight: 700;
+  }
+  .field-mini input {
+    font-size: 14px; font-weight: 700; border: 1px solid var(--border); background: var(--bg);
+    border-radius: 9px; padding: 6px 9px; width: 100%; color: var(--text-main);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .field-mini input.name-input { font-size: 15px; }
+  .field-mini input:hover { border-color: var(--text-faint); }
+  .field-mini input:focus { outline: none; border-color: var(--primary-color); background: #fff; }
+  .field-mini input::placeholder { color: var(--text-faint); font-weight: 500; }
+
+  .two-col { display: flex; gap: 6px; }
+  .two-col .field-mini { flex: 1; min-width: 0; }
+
+  .char-card-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+  .text-btn {
+    background: none; border: none; font-size: 12px; color: var(--text-faint); font-weight: 700;
+    padding: 4px;
+  }
+  .text-btn:hover { color: #E5484D; }
+  .collapse-btn { background: none; border: none; color: var(--text-faint); padding: 4px; display:flex; }
+  .collapse-btn svg { width: 16px; height: 16px; transition: transform 0.2s; }
+  .collapse-btn.collapsed svg { transform: rotate(-90deg); }
+
+  .char-card-body { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+  .char-card-body.collapsed { display: none; }
+
+  .field-label {
+    font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; display: block;
+  }
+
+  .capacity-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .stars { display: flex; gap: 3px; flex-shrink: 0; }
+  .star-btn { background: none; border: none; font-size: 20px; color: var(--text-faint); padding: 0; line-height: 1; }
+  .star-btn.filled { color: var(--char-color, var(--honey)); }
+  .drink-summary { display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
+  .drink-summary-label { font-size: 10.5px; color: var(--text-sub); font-weight: 700; }
+  .drink-summary-value { font-size: 11.5px; font-weight: 800; color: var(--char-color, var(--text-main)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .capacity-desc { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+
+  .pill-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px;
+    font-size: 12px; background: #fff; color: var(--text-sub); font-weight: 700;
+  }
+  .pill.active {
+    background: var(--primary-color-light); border-color: var(--primary-color);
+    color: var(--primary-color);
+  }
+
+  .role-input {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-size: 13px; background: var(--bg);
+  }
+  .role-input:focus { outline: none; border-color: var(--primary-color); background: #fff; }
+
+  .themecolor-row {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: var(--bg);
+  }
+  .themecolor-row .label { font-size: 12px; color: var(--text-sub); font-weight: 700; }
+
+  .add-char-btn {
+    width: 100%; padding: 22px 0; border-radius: var(--radius-lg);
+    border: 1.5px dashed var(--border); background: #fff; color: var(--text-sub);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 700; transition: border-color 0.15s, color 0.15s, transform 0.15s;
+  }
+  .add-char-btn:hover { border-color: var(--primary-color); color: var(--primary-color); transform: translateY(-1px); }
+  .add-char-btn .plus-circle {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--honey-light);
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+
+  .legend {
+    margin-top: 20px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .legend-card {
+    background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: 14px; font-size: 12px; color: var(--text-sub); line-height: 1.7;
+  }
+  .legend-card b { color: var(--text-main); font-size: 13px; display: block; margin-bottom: 6px; }
+
+  /* ===== Main / Rounds ===== */
+  .rounds { display: flex; flex-direction: column; gap: 20px; }
+  .round-separator { display:flex; align-items:center; gap:12px; padding:2px 8px; }
+  .round-separator-line { flex:1; height:1px; background:var(--border); }
+  .btn-end-between { border:1px solid #F3C6CC; color:#E5484D; background:#fff; border-radius:999px; padding:7px 14px; font-size:12px; font-weight:800; }
+  .btn-end-between:hover { background:#FFF1F2; }
+
+  .round-card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow); padding: 24px; position: relative; overflow: hidden;
+    transition: opacity 0.25s;
+  }
+  .round-card.ended { opacity: 0.68; }
+  .round-card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--rnd-color), transparent 140%);
+  }
+
+  .round-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;
+    flex-wrap: wrap; gap: 10px;
+  }
+  .round-title-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .round-badge {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--rnd-color); color: var(--rnd-text, #111); display: flex; align-items: center; justify-content: center;
+    font-family: "Jua", sans-serif; font-size: 17px; flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+  }
+  .round-title-group h2 {
+    margin: 0; font-size: 21px; font-weight: 400;
+    color: var(--text-main);
+  }
+  .round-subtitle-input {
+    border: 1px dashed var(--border); background: var(--bg); font-size: 12.5px; color: var(--text-sub);
+    padding: 6px 10px; border-radius: 999px; min-width: 140px;
+  }
+  .round-subtitle-input:focus { outline: none; border-color: var(--primary-color); background: #fff; }
+
+  .ended-tag {
+    font-size: 11.5px; font-weight: 800; color: #fff; background: var(--text-faint);
+    padding: 4px 10px; border-radius: 999px;
+  }
+
+  .round-header-actions { display: flex; align-items: center; gap: 8px; }
+  .btn-end {
+    background: #fff; border: 1px solid #F3C6CC; color: #E5484D;
+    border-radius: 999px; padding: 8px 14px; font-size: 12.5px; font-weight: 800;
+  }
+  .btn-end:hover { background: #FFF1F2; }
+  .btn-reopen {
+    background: var(--text-main); color: #fff; border: none;
+    border-radius: 999px; padding: 8px 14px; font-size: 12.5px; font-weight: 800;
+  }
+
+  .round-body { overflow: hidden; }
+  .round-body.collapsed { display: none; }
+  .round-body.locked { pointer-events: none; }
+
+  .basic-fields {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;
+  }
+  @media (max-width: 640px) { .basic-fields { grid-template-columns: 1fr; } }
+  .basic-field label {
+    font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 5px; display: block;
+  }
+  .basic-field input {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 12px; font-size: 13px; background: var(--bg);
+  }
+  .basic-field input:focus { outline: none; border-color: var(--primary-color); background: #fff; }
+
+  .questions-section { margin-bottom: 18px; }
+  .suggestion-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; align-items: center; }
+  .suggestion-pill {
+    border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px;
+    font-size: 12px; background: #fff; color: var(--text-sub); font-weight: 600;
+    white-space: nowrap;
+  }
+  .suggestion-pill:hover { border-color: var(--primary-color); color: var(--primary-color); background: var(--primary-color-light); }
+  .suggestion-pill.label-pill { background: var(--honey-light); color: #B87400; cursor: default; border-color: transparent; font-weight: 800; }
+  .suggestion-pill.more { color: var(--text-faint); }
+
+  .question-list { display: flex; flex-direction: column; gap: 10px; }
+  .question-card {
+    background: var(--bg); border-radius: var(--radius-md); padding: 12px 14px; border: 1px solid var(--border);
+  }
+  .question-card-header { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .question-card-header input.q-text {
+    flex: 1; font-weight: 800; font-size: 13px; border: none; background: transparent;
+    color: var(--text-main); padding: 2px 0; border-bottom: 1px dashed transparent;
+  }
+  .question-card-header input.q-text:focus { outline: none; border-bottom: 1px solid var(--primary-color); }
+  .question-card-header .del-q { background: none; border: none; color: var(--text-faint); flex-shrink: 0; display:flex; padding: 2px; }
+  .question-card-header .del-q:hover { color: #E5484D; }
+  .question-card-header .del-q svg { width: 14px; height: 14px; }
+
+  .q-answers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .q-answer-row { display: flex; align-items: center; gap: 8px; }
+  .q-answer-avatar {
+    width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+    border: 1.5px solid var(--qc, var(--border)); background: #F3ECE4;
+  }
+  .q-answer-avatar-placeholder {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    border: 1.5px solid var(--qc, var(--border)); background: #F3ECE4;
+    display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-faint);
+  }
+  .q-answer-name { font-size: 11.5px; font-weight: 700; color: var(--text-sub); width: 46px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .q-answer-input {
+    flex: 1; border: 1px solid var(--border); background: #fff; border-radius: 8px;
+    padding: 6px 9px; font-size: 12.5px;
+  }
+  .q-answer-input:focus { outline: none; border-color: var(--qc, var(--primary-color)); }
+
+  .empty-hint {
+    font-size: 12.5px; color: var(--text-faint); padding: 8px 2px;
+  }
+
+  .round-char-row {
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: 14px 16px; margin-bottom: 10px;
+    border-left: 3px solid var(--rc-color, var(--border));
+    background: #fff;
+  }
+  .round-char-row:last-child { margin-bottom: 0; }
+
+  .rc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .rc-avatar {
+    width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+    border: 2px solid var(--rc-color, var(--border));
+    background: #F3ECE4;
+  }
+  .rc-avatar-placeholder {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid var(--rc-color, var(--border));
+    background: #F3ECE4; display: flex; align-items: center; justify-content: center; color: #C9BEB2;
+  }
+  .rc-avatar-placeholder svg { width: 16px; height: 16px; }
+  .rc-name { font-weight: 800; font-size: 14px; }
+
+  .rc-grid {
+    display: grid; grid-template-columns: 1fr 1.6fr 1.6fr; gap: 16px; align-items: start;
+  }
+  @media (max-width: 760px) { .rc-grid { grid-template-columns: 1fr; } }
+
+  .rc-field label {
+    font-size: 11px; color: var(--text-sub); font-weight: 700; display: flex; align-items: center; gap: 4px; margin-bottom: 6px;
+  }
+  .rc-field label .info-dot {
+    width: 13px; height: 13px; border-radius: 50%; background: var(--bg); color: var(--text-faint);
+    font-size: 9px; display: flex; align-items: center; justify-content: center; cursor: default;
+  }
+  .seat-select {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 8px 10px; font-size: 12.5px; background: var(--bg);
+  }
+  .seat-select:focus { outline: none; border-color: var(--primary-color); background: #fff; }
+  .seat-custom {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 8px 10px; font-size: 12.5px; margin-top: 6px; background: var(--bg);
+  }
+  .seat-custom:focus { outline: none; border-color: var(--primary-color); background: #fff; }
+
+  .intox-track { padding: 4px 2px 0; }
+  input[type="range"].intox-slider {
+    width: 100%; -webkit-appearance: none; height: 4px; border-radius: 2px;
+    background: linear-gradient(to right, var(--rc-color, var(--primary-color)) 0%, var(--rc-color, var(--primary-color)) var(--pct,0%), var(--border) var(--pct,0%), var(--border) 100%);
+    outline: none; margin: 10px 0 4px;
+  }
+  input[type="range"].intox-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--rc-color, var(--primary-color));
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2); cursor: pointer;
+  }
+  input[type="range"].intox-slider::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--rc-color, var(--primary-color)); cursor: pointer;
+  }
+  .intox-labels {
+    display: flex; justify-content: space-between; font-size: 9.5px; color: var(--text-faint);
+    margin-top: 2px;
+  }
+  .intox-labels span.active { color: var(--rc-color, var(--primary-color)); font-weight: 800; }
+
+  .quote-input {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-size: 12.5px; font-style: italic; background: var(--bg);
+  }
+  .quote-input:focus { outline: none; border-color: var(--primary-color); background: #fff; }
+
+  .empty-round-chars {
+    text-align: center; padding: 34px 10px; color: var(--text-faint); font-size: 13px;
+    border: 1.5px dashed var(--border); border-radius: var(--radius-md);
+  }
+  .empty-round-chars .bear { font-size: 26px; display: block; margin-bottom: 6px; }
+
+
+  /* ===== Photo crop editor (work screen only; never exported) ===== */
+  .photo-adjust-btn {
+    margin-top: 7px; width: 100%; padding: 7px 10px; border: 1px solid var(--border);
+    border-radius: 9px; background: #fff; color: var(--text-sub); font-size: 11px; font-weight: 800;
+  }
+  .photo-adjust-btn:hover { border-color: var(--primary-color); color: var(--primary-color); background: var(--primary-color-light); }
+  .photo-crop-modal .modal-box { max-width: 460px; }
+  .crop-editor {
+    border-radius: 16px; background: #F3F4F6; padding: 14px; margin: 12px 0 16px;
+  }
+  .crop-viewport {
+    width: 300px; height: 300px; margin: 0 auto; position: relative; overflow: hidden;
+    border-radius: 50%; background: #E8E2DB; cursor: grab; touch-action: none;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), 0 3px 12px rgba(0,0,0,.08);
+  }
+  .crop-viewport.dragging { cursor: grabbing; }
+  .crop-image {
+    position: absolute; left: 50%; top: 50%; max-width: none; user-select: none;
+    -webkit-user-drag: none; pointer-events: none; transform-origin: center center;
+  }
+  .crop-guide {
+    position:absolute; inset:0; border-radius:50%; pointer-events:none;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.85);
+  }
+  .crop-help { text-align:center; font-size:11.5px; color:var(--text-sub); margin-top:10px; line-height:1.55; }
+  .crop-controls { display:flex; align-items:center; gap:8px; margin-top:10px; }
+  .crop-controls label { font-size:11px; font-weight:800; color:var(--text-sub); white-space:nowrap; }
+  .crop-zoom { flex:1; }
+  .crop-reset { border:1px solid var(--border); background:#fff; border-radius:999px; padding:6px 10px; font-size:11px; font-weight:800; color:var(--text-sub); }
+  .side-crop-viewport { width:300px; height:420px; margin:0 auto; position:relative; overflow:hidden; border-radius:14px; background:#E8E2DB; cursor:grab; touch-action:none; box-shadow:inset 0 0 0 2px rgba(255,255,255,.9),0 3px 12px rgba(0,0,0,.08); }
+  .side-crop-viewport.dragging { cursor:grabbing; }
+  .side-crop-viewport img { position:absolute; left:50%; top:50%; max-width:none; user-select:none; -webkit-user-drag:none; pointer-events:none; transform-origin:center center; }
+  .side-crop-guide { position:absolute; inset:0; pointer-events:none; box-shadow:inset 0 0 0 2px rgba(255,255,255,.85); }
+
+
+  .xcard-avatar-frame { width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;display:block;background:#EEE; }
+  .xcard-avatar-frame .xcard-avatar { width:100%;height:100%;display:block; }
+  .xcard-feature-avatar-frame { width:76px;height:76px;border-radius:50%;overflow:hidden;flex-shrink:0;display:block;background:#F3ECE4;border:2px solid var(--char-color); }
+  .xcard-feature-avatar-frame .xcard-feature-avatar { width:100%;height:100%;display:block;border:0;border-radius:50%;background-repeat:no-repeat;background-size:cover;background-position:center; }
+  .xcard-profile-avatar-frame { width:34px;height:34px;border-radius:50%;overflow:hidden;flex-shrink:0;display:block; }
+  .xcard-profile-avatar-frame .xcard-profile-avatar { width:100%;height:100%;display:block;border-radius:50%;background-repeat:no-repeat;background-size:cover;background-position:center; }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(43,33,24,0.45);
+    display: flex; align-items: center; justify-content: center; z-index: 200;
+    padding: 20px;
+  }
+  .modal-box {
+    background: #fff; border-radius: var(--radius-lg); padding: 24px; max-width: 360px; width: 100%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  .modal-box h3 { margin: 0 0 8px; font-size: 16px; font-weight: 800; }
+  .modal-box p { margin: 0 0 20px; font-size: 13px; color: var(--text-sub); line-height: 1.6; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .modal-actions button { padding: 9px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1px solid var(--border); background: #fff; }
+  .modal-actions .danger { background: #E5484D; color: #fff; border-color: #E5484D; }
+
+  ::placeholder { color: var(--text-faint); }
+
+  /* ===== Export side photo: work screen only controls ===== */
+  .side-photo-editor { margin-top:10px; padding:10px; border:1px solid var(--border); border-radius:14px; background:#fff; box-shadow:var(--shadow); }
+  .side-photo-editor-title { font-size:11px; font-weight:800; color:var(--text-main); margin-bottom:8px; }
+  .side-photo-size-row { display:flex; align-items:center; gap:6px; margin-top:7px; }
+  .side-photo-size-row label { font-size:10.5px; font-weight:800; color:var(--text-sub); white-space:nowrap; }
+  .side-photo-width { flex:1; min-width:0; }
+  .side-photo-width-value { min-width:42px; text-align:right; font-size:10px; color:var(--text-faint); }
+  .side-photo-preview { width:128px; height:390px; margin:0 auto; border-radius:11px; overflow:hidden; position:relative; background:#F5F6F8; border:1px dashed var(--border); display:flex; align-items:center; justify-content:center; touch-action:none; cursor:grab; }
+  .side-photo-preview.dragging { cursor:grabbing; }
+  .side-photo-preview img { position:absolute; left:50%; top:50%; width:auto; height:auto; max-width:none; max-height:none; object-fit:contain; object-position:center center; display:block; transform-origin:center center; user-select:none; -webkit-user-drag:none; pointer-events:none; }
+  .side-photo-empty { font-size:10px; color:var(--text-faint); text-align:center; line-height:1.5; padding:12px; }
+  .side-photo-controls { display:flex; align-items:center; gap:6px; margin-top:7px; }
+  .side-photo-controls label { font-size:10.5px; font-weight:800; color:var(--text-sub); white-space:nowrap; }
+  .side-photo-zoom { flex:1; }
+  .side-photo-reset { padding:6px 9px; border:1px solid var(--border); border-radius:999px; background:#fff; color:var(--text-sub); font-size:10.5px; font-weight:800; cursor:pointer; }
+  .side-photo-reset:hover { border-color:var(--primary-color); color:var(--primary-color); background:var(--primary-color-light); }
+  .side-photo-actions { display:flex; gap:5px; margin-top:7px; }
+  .side-photo-actions button, .side-photo-upload { flex:1; min-width:0; padding:6px 7px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--text-sub); font-size:11px; font-weight:800; cursor:pointer; text-align:center; }
+  .side-photo-actions button:hover, .side-photo-upload:hover { border-color:var(--primary-color); color:var(--primary-color); background:var(--primary-color-light); }
+  .side-photo-upload input { display:none; }
+  .side-photo-tip { margin-top:6px; font-size:9px; line-height:1.45; color:var(--text-faint); }
+
+  /* ===== PNG 제목 카드 (사이드바 상단, 눈에 잘 띄도록) ===== */
+  .export-card {
+    background: linear-gradient(135deg, var(--primary-color-light), #fff);
+    border: 1.5px solid var(--primary-color);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .export-card-label {
+    font-size: 14px; font-weight: 800; color: var(--primary-color);
+    display: flex; align-items: center; gap: 6px; margin-bottom: 10px;
+  }
+  .export-title-input-big {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-md);
+    font-size: 15px; font-weight: 700; background: #fff; outline: none; margin-bottom: 10px;
+    box-sizing: border-box;
+  }
+  .export-title-input-big:focus { border-color: var(--primary-color); }
+  .export-title-input-big::placeholder { font-weight: 500; }
+  .export-card-btn { width: 100%; height: 42px; font-size: 14px; border-radius: var(--radius-md); }
+
+  /* ===== 16:9 Export Card (scaled output, width can exceed 16:9 if needed) ===== */
+  .xcard-root { position:fixed; top:0; left:-99999px; width:1840px; min-height:900px; height:auto; box-sizing:border-box; background:#fff; padding:42px 48px 56px; font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo",sans-serif; color:var(--text-main); display:flex; flex-direction:column; }
+  .xcard-header { display:flex; align-items:flex-end; justify-content:space-between; padding-bottom:18px; border-bottom:2px solid var(--border); margin-bottom:18px; }
+  .xcard-title { font-family:"Jua",sans-serif; font-size:32px; }
+  .xcard-shell { display:grid; grid-template-columns:1fr 230px; gap:26px; align-items:stretch; margin-bottom:24px; }
+  .xcard-main { min-width:0; display:flex; flex-direction:column; gap:16px; }
+  .xcard-featured { display:grid; gap:16px; align-content:start; }
+  .xcard-feature-card { display:flex; align-items:center; gap:16px; border:1.5px solid var(--border); border-radius:18px; padding:16px 20px; background:#fff; min-width:0; }
+  .xcard-feature-avatar-frame { width:76px; height:76px; }
+  .xcard-feature-avatar { width:76px; height:76px; border-radius:50%; object-fit:contain; object-position:center; flex-shrink:0; background:#F3ECE4; border:2px solid var(--char-color); }
+  .xcard-feature-avatar-frame, .xcard-profile-avatar-frame, .xcard-avatar-frame { display:block; flex-shrink:0; overflow:hidden; border-radius:50%; line-height:0; }
+  .xcard-feature-avatar-ph { width:76px; height:76px; border-radius:50%; flex-shrink:0; background:#F3ECE4; display:flex; align-items:center; justify-content:center; font-size:30px; border:2px solid var(--char-color); }
+  .xcard-feature-info { min-width:0; }
+  .xcard-feature-name { font-size:18px; font-weight:800; margin-bottom:5px; }
+  .xcard-feature-meta { font-size:12px; color:var(--text-sub); margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .xcard-feature-stars { font-size:13px; color:var(--char-color,#FFB020); letter-spacing:1px; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .xcard-feature-role { font-size:11.5px; color:var(--text-main); background:var(--bg); display:inline-block; padding:3px 10px; border-radius:999px; }
+  .xcard-side { width:230px; min-width:0; flex-shrink:0; position:relative; align-self:stretch; min-height:0; }
+  .xcard-side-top { position:relative; width:100%; display:flex; flex-direction:column; box-sizing:border-box; }
+  .xcard-side-title { font-family:"Jua",sans-serif; font-size:15px; margin-bottom:10px; color:var(--text-main); display:flex; align-items:center; gap:5px; flex:0 0 auto; }
+  .xcard-side-list { display:flex; flex-direction:column; gap:8px; margin-top:0; }
+  .xcard-side-top { overflow:visible; }
+  .xcard-side[data-hide-participants="true"] .xcard-side-top { display:none; }
+  .xcard-side .xcard-profile-card { padding:9px 10px; }
+  .xcard-side .xcard-profile-avatar-frame { width:34px; height:34px; }
+  .xcard-side .xcard-profile-avatar { width:34px; height:34px; }
+  .xcard-side .xcard-profile-name { font-size:12.5px; }
+  .xcard-side .xcard-profile-detail { font-size:10px; white-space:normal; overflow-wrap:anywhere; line-height:1.35; }
+  .xcard-side-photo {
+    position:absolute;
+    left:0;
+    top:var(--side-photo-top, 0px);
+    width:100%;
+    height:var(--side-photo-height, 0px);
+    border-radius:14px;
+    overflow:hidden;
+    background:#F3F4F6;
+    box-sizing:border-box;
+  }
+  .xcard-side-photo img {
+    position:absolute; left:50%; top:50%; width:auto; height:auto; max-width:none; max-height:none; object-fit:contain; object-position:center center;
+    display:block; transform-origin:center center;
+  }
+  .xcard-credit-row { position:absolute; left:20px; bottom:14px; display:flex; align-items:center; gap:14px; }
+  .xcard-credit { font-size:13px; color:var(--text-faint); font-weight:600; letter-spacing:-0.1px; white-space:nowrap; }
+  .xcard-credit-art { padding-left:14px; border-left:1px solid var(--border); }
+  .xcard-round-meta { display:flex; align-items:flex-start; gap:7px 12px; margin:0 0 14px; font-size:13px; color:var(--text-sub); flex:1 1 100%; width:100%; min-width:0; flex-wrap:wrap; overflow:visible; line-height:1.45; } .xcard-round-meta span { white-space:normal; overflow-wrap:anywhere; min-width:0; max-width:100%; } .xcard-round-meta b { color:var(--text-main); font-weight:800; margin-right:4px; }
+  .xcard-profiles { display:flex; flex-direction:column; gap:6px; margin-bottom:10px; } .xcard-profile-card { display:flex; align-items:center; gap:8px; padding:7px 8px; border-radius:10px; background:#FAFAFB; } .xcard-profile-card .xcard-profile-avatar { width:28px; height:28px; flex-shrink:0; } .xcard-profile-info { min-width:0; } .xcard-profile-name { font-size:11px; font-weight:800; } .xcard-profile-detail { font-size:9px; color:var(--text-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .xcard-qa-row + .xcard-qa-row::before { content:"｜"; color:var(--text-faint); margin:0 5px 0 2px; }
+  .xcard-columns { display:grid; gap:20px; min-height:0; }
+  .xcard-col { min-width:0; min-height:640px; border:1px solid var(--border); border-top:8px solid var(--xround-color); border-radius:20px; padding:26px; display:flex; flex-direction:column; background:#fff; }
+  .xcard-col-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; min-width:0; flex-wrap:wrap; } .xcard-badge { width:42px; height:42px; border-radius:13px; display:flex; align-items:center; justify-content:center; color:var(--xround-text,#111); font-family:"Jua",sans-serif; font-size:19px; flex-shrink:0; } .xcard-col-title { font-family:"Jua",sans-serif; font-size:25px; flex-shrink:0; }
+  .xcard-meta { font-size:14px; color:var(--text-sub); margin-bottom:12px; line-height:1.6; }
+  .xcard-profile { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px; } .xcard-profile-chip { display:flex; align-items:center; gap:5px; padding:4px 7px; border-radius:999px; background:var(--chip-bg); color:#333; font-size:10.5px; font-weight:700; } .xcard-profile-avatar { width:20px; height:20px; border-radius:50%; object-fit:contain; object-position:center; }
+  .xcard-qa { border-top:1px dashed var(--border); padding-top:12px; margin-top:2px; margin-bottom:12px; } .xcard-qa-title { font-size:14px; font-weight:800; color:var(--xround-color); margin-bottom:7px; } .xcard-qa-row { font-size:13px; line-height:1.5; margin-bottom:5px; display:block; } .xcard-qa-name { font-weight:800; }
+  .xcard-rows { display:flex; flex-direction:column; gap:10px; overflow:visible; flex:0 0 auto; } .xcard-row { display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:12px; background:#FAFAFB; }
+  .xcard-avatar { width:40px; height:40px; border-radius:50%; object-fit:contain; object-position:center; flex-shrink:0; background:#EEE; border:1.5px solid var(--char-color); } .xcard-avatar-ph { width:40px; height:40px; border-radius:50%; flex-shrink:0; background:#F1F2F4; display:flex; align-items:center; justify-content:center; font-size:17px; }
+  .xcard-row-main { min-width:0; flex:1; } .xcard-row-name { font-size:15.5px; font-weight:800; color:var(--char-color); } .xcard-row-profile,.xcard-row-sub { font-size:12.5px; color:var(--text-sub); white-space:normal; overflow-wrap:anywhere; } .xcard-row-quote { font-size:12.5px; color:var(--text-main); font-style:italic; white-space:normal; overflow-wrap:anywhere; } .xcard-more { font-size:13px; color:var(--text-faint); margin-top:2px; } .xcard-empty { font-size:14px; color:var(--text-faint); text-align:center; margin-top:30px; }
+  .export-title-input { width:190px; padding:9px 11px; border:1px solid var(--border); border-radius:10px; font-size:12px; background:#fff; outline:none; } .export-title-input:focus { border-color:var(--primary-color); }
+  .round-color-control { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-sub); } .round-color-control input { width:26px; height:26px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <h1 class="heading-font">🐻 핑담곰 회식가자</h1>
+    <span class="autosave-badge" id="autosaveBadge">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-8 8a1 1 0 01-1.4 0l-4-4a1 1 0 111.4-1.4L8 12.6l7.3-7.3a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
+      자동 저장됨
+    </span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-picker">
+      메인 테마색
+      <input type="color" id="mainThemeColor" class="color-swatch-input" value="#3182F6">
+    </div>
+    <button class="icon-btn" id="resetBtn" title="전체 데이터 초기화">🔄 초기화</button>
+  </div>
+</div>
+
+<div class="app-layout">
+
+  <!-- ================= SIDEBAR ================= -->
+  <div class="sidebar">
+    <div class="export-card">
+      <div class="export-card-label">🖼 PNG 카드 제목</div>
+      <input id="exportTitleInput" class="export-title-input-big" placeholder="예) 8월 회식 기록" value="">
+      <div class="export-card-label" style="margin-top:2px;">🎨 그림 출처</div>
+      <input id="artCreditInput" class="export-title-input-big" placeholder="예) 그림 @artist_id" value="">
+      <button class="icon-btn export export-card-btn" id="exportPngBtn">🖼 16:9 카드로 저장</button>
+    </div>
+
+    <div class="sidebar-header">
+      <div class="sidebar-title">👥 회식 참여 <span class="sidebar-count" id="charCount">총 인원 0명</span></div>
+      <button class="btn-primary" id="addCharBtn">＋ 참여자 추가</button>
+    </div>
+
+    <div class="char-list" id="charList"></div>
+
+    <button class="add-char-btn" id="addCharBtnBottom" style="margin-top:12px;">
+      <span class="plus-circle">＋</span> 인원 추가
+    </button>
+
+    <div class="side-photo-editor">
+      <div class="side-photo-editor-title">🖼 참여 인원 아래 사진</div>
+      <div class="side-photo-preview" id="sidePhotoPreview"></div>
+      <div class="side-photo-actions">
+        <label class="side-photo-upload">사진 추가<input type="file" id="sidePhotoInput" accept="image/*"></label>
+        <button type="button" id="sidePhotoRemoveBtn" disabled>삭제</button>
+      </div>
+      <div class="side-photo-size-row">
+        <label>가로</label>
+        <input class="side-photo-width" id="sidePhotoWidth" type="range" min="90" max="190" step="1" value="128">
+        <span class="side-photo-width-value" id="sidePhotoWidthValue">128px</span>
+      </div>
+      <div class="side-photo-controls">
+        <label>확대</label>
+        <input class="side-photo-zoom" id="sidePhotoZoom" type="range" min="1" max="3.5" step="0.01" value="1">
+        <button type="button" class="side-photo-reset" id="sidePhotoReset">원래대로</button>
+      </div>
+      <div class="side-photo-tip">사진 영역에서 <b>마우스 휠</b>로 확대/축소하고 <b>드래그</b>로 위치를 옮길 수 있습니다. 가로를 바꾸면 세로는 같은 비율로 자동 조정됩니다. 사진은 기본적으로 세로 높이에 맞춰지고, 그 상태에서 더 확대할 수 있습니다. PNG 출력 영역은 기존 비율을 유지합니다.</div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-card">
+        <b>🍶 주량 기준 (별 5개)</b>
+        ★☆☆☆☆ 매우 약함 (1~2잔)<br>
+        ★★☆☆☆ 약함 (3~4잔)<br>
+        ★★★☆☆ 보통 (5~6잔)<br>
+        ★★★★☆ 강함 (7~8잔)<br>
+        ★★★★★ 매우 강함 (9잔 이상)
+      </div>
+      <div class="legend-card">
+        <b>🥃 주종 설명</b>
+        소주 / 맥주 / 막걸리 / 와인 / 위스키 / 기타<br>복수 선택 가능
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN ================= -->
+  <div class="rounds" id="roundsContainer"></div>
+
+</div>
+
+<div id="modalRoot"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+/* ============================================================
+   DATA MODEL
+============================================================ */
+const STORAGE_KEY = "pingdamgomData_v2";
+
+const DEFAULT_QUESTIONS = {
+  1: ["오늘 회식에 참석한 이유는?", "누가 가장 먼저 말을 걸었나?", "누가 먼저 술을 권했나?", "분위기는 어땠나?", "누구 옆에 앉았나?", "오늘 가장 신경 쓰이는 사람은?", "오늘의 첫인상은?"],
+  2: ["누가 가장 먼저 취하기 시작했나?", "누구와 가장 많이 이야기했나?", "누가 분위기를 주도하고 있나?", "갑자기 친해진 사람은?", "누가 제일 시끄러워졌나?", "누가 몰래 자리를 빠졌나?", "지금 가장 하고 싶은 말은?"],
+  3: ["누가 먼저 집에 가려고 하나?", "누가 아직도 멀쩡한가?", "누가 가장 취했나?", "누구를 챙겨주고 있나?", "마지막까지 남은 사람은?", "오늘 회식의 최대 사건은?", "집에 가기 전에 하고 싶은 말은?"]
+};
+
+const SEAT_PRESETS = ["상석", "사장님 옆", "팀장님 옆", "입구 쪽", "벽 쪽", "구석 자리", "친한 사람 옆", "혼자 떨어진 자리", "맞은편", "직접 입력"];
+const INTOX_LABELS = ["안 취함", "약간 취함", "취함", "많이 취함", "만취"];
+const DRINK_TYPES = ["소주", "맥주", "막걸리", "와인", "위스키", "기타"];
+const CAP_DESC = ["매우 약함 (1~2잔)", "약함 (3~4잔)", "보통 (5~6잔)", "강함 (7~8잔)", "매우 강함 (9잔 이상)"];
+const CHAR_COLORS = ["#FF6F91", "#3182F6", "#FFB020", "#00C48C", "#8B5CF6", "#F04452", "#14B8A6", "#F97316"];
+const ROUND_COLORS = { 1: "#FF6F91", 2: "#FFB020", 3: "#8B5CF6" };
+function getRoundColor(n) { return (appData.theme && appData.theme.roundColors && appData.theme.roundColors[n]) || ROUND_COLORS[n]; }
+
+function uid(prefix) { return prefix + "-" + Math.random().toString(36).slice(2, 10); }
+
+function freshRound(n) {
+  return {
+    menu: "", location: "", situationDesc: "", situation: "",
+    ended: false,
+    questions: DEFAULT_QUESTIONS[n].map(q => ({ id: uid("q"), text: q, answers: {} })),
+    characters: {}
+  };
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.characters && parsed.rounds) return parsed;
+    }
+  } catch (e) { console.warn("load failed", e); }
+  return {
+    theme: { primaryColor: "#3182F6", roundColors: { 1: "#FF6F91", 2: "#FFB020", 3: "#8B5CF6" }, sidePhoto: "", sidePhotoZoom: 1, sidePhotoX: 0, sidePhotoY: 0 },
+    characters: [],
+    rounds: { 1: freshRound(1), 2: freshRound(2), 3: freshRound(3) },
+    ui: { collapsedChars: {}, collapsedRounds: {} }
+  };
+}
+
+let appData = loadData();
+if (!appData.theme) appData.theme = {};
+if (!Object.prototype.hasOwnProperty.call(appData.theme, "sidePhoto")) appData.theme.sidePhoto = "";
+if (!Object.prototype.hasOwnProperty.call(appData.theme, "sidePhotoZoom")) appData.theme.sidePhotoZoom = 1;
+if (!Object.prototype.hasOwnProperty.call(appData.theme, "sidePhotoX")) appData.theme.sidePhotoX = 0;
+if (!Object.prototype.hasOwnProperty.call(appData.theme, "sidePhotoY")) appData.theme.sidePhotoY = 0;
+if (!Object.prototype.hasOwnProperty.call(appData.theme, "sidePhotoWidth")) appData.theme.sidePhotoWidth = 128;
+if (!appData.theme) appData.theme = { primaryColor: "#3182F6", exportTitle: "" };
+if (typeof appData.theme.exportTitle !== "string") appData.theme.exportTitle = "";
+if (!appData.ui) appData.ui = { collapsedChars: {}, collapsedRounds: {} };
+if (!appData.theme) appData.theme = { primaryColor: "#3182F6" };
+if (!appData.theme.roundColors) appData.theme.roundColors = { 1: "#FF6F91", 2: "#FFB020", 3: "#8B5CF6" };
+// migrate: ensure characters map + ended flag + questions.answers object exist for all rounds
+[1,2,3].forEach(n => {
+  const r = appData.rounds[n];
+  if (!r) { appData.rounds[n] = freshRound(n); return; }
+  if (typeof r.ended !== "boolean") r.ended = false;
+  if (!Array.isArray(r.questions)) r.questions = [];
+  r.questions.forEach(q => { if (!q.answers || typeof q.answers !== "object") q.answers = {}; });
+  if (!r.characters) r.characters = {};
+});
+// migrate photo crop settings
+appData.characters.forEach(c => {
+  if (typeof c.photoZoom !== "number") c.photoZoom = 1;
+  if (typeof c.photoX !== "number") c.photoX = 0;
+  if (typeof c.photoY !== "number") c.photoY = 0;
+});
+
+let saveTimeout = null;
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    flashAutosave();
+  } catch (e) { console.warn("save failed", e); }
+}
+function flashAutosave() {
+  const badge = document.getElementById("autosaveBadge");
+  badge.classList.add("show");
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => badge.classList.remove("show"), 1400);
+}
+
+function applyMainTheme() {
+  const c = appData.theme.primaryColor || "#3182F6";
+  document.documentElement.style.setProperty("--primary-color", c);
+  document.documentElement.style.setProperty("--primary-color-light", hexToLight(c));
+  document.getElementById("mainThemeColor").value = c;
+}
+function hexToLight(hex) {
+  try {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    const lr = Math.round(r + (255-r)*0.9), lg = Math.round(g + (255-g)*0.9), lb = Math.round(b + (255-b)*0.9);
+    return `rgb(${lr},${lg},${lb})`;
+  } catch(e) { return "#EAF2FF"; }
+}
+function getContrastText(hex) {
+  try {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    const luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+    return luminance < 0.58 ? "#fff" : "#111";
+  } catch(e) { return "#111"; }
+}
+
+function nextCharColor() {
+  const used = appData.characters.map(c => c.themeColor);
+  for (const c of CHAR_COLORS) if (!used.includes(c)) return c;
+  return CHAR_COLORS[appData.characters.length % CHAR_COLORS.length];
+}
+
+/* ============================================================
+   EXPORT SIDE PHOTO
+============================================================ */
+function renderSidePhotoEditor() {
+  const preview = document.getElementById("sidePhotoPreview");
+  const removeBtn = document.getElementById("sidePhotoRemoveBtn");
+  if (!preview) return;
+  const t = appData.theme || {};
+  if (!t.sidePhoto) {
+    preview.innerHTML = `<div class="side-photo-empty">참여 인원 아래에 들어갈 사진입니다.<br>사진을 추가한 뒤 휠로 확대/축소하고 드래그로 위치를 조정하세요.</div>`;
+    if (removeBtn) removeBtn.disabled = true;
+    return;
+  }
+
+  preview.innerHTML = `<img id="sidePhotoEditorImage" src="${t.sidePhoto}" alt="">`;
+  if (removeBtn) removeBtn.disabled = false;
+
+  const img = document.getElementById("sidePhotoEditorImage");
+  const zoomControl = document.getElementById("sidePhotoZoom");
+  const resetBtn = document.getElementById("sidePhotoReset");
+  const widthControl = document.getElementById("sidePhotoWidth");
+  const widthValue = document.getElementById("sidePhotoWidthValue");
+  let previewWidth = Math.max(90, Math.min(190, Number(t.sidePhotoWidth) || 128));
+  // 편집창은 실제 PNG의 사진 프레임과 같은 비율을 사용한다.
+  // PNG의 프레임은 항상 230px 너비이고, 실제 1/2/3차 카드 영역 높이에 맞춰진다.
+  let actualPhotoHeight = 700;
+  try {
+    const exportRoot = buildExportCard();
+    const exportFrame = exportRoot && exportRoot.querySelector('.xcard-side-photo');
+    if (exportFrame) actualPhotoHeight = Math.max(1, exportFrame.getBoundingClientRect().height);
+    if (exportRoot) exportRoot.remove();
+  } catch (e) {}
+  const previewRatio = actualPhotoHeight / 230;
+  preview.style.width = `${previewWidth}px`;
+  preview.style.height = `${Math.max(120, Math.round(previewWidth * previewRatio))}px`;
+  let z = Math.max(1, Math.min(3.5, Number(t.sidePhotoZoom) || 1));
+  let x = Number(t.sidePhotoX) || 0;
+  let y = Number(t.sidePhotoY) || 0;
+  let baseScale = 1;
+  let dragging = false, sx = 0, sy = 0, ox = 0, oy = 0;
+
+  function applyPreviewWidth(saveIt=false) {
+    preview.style.width = `${previewWidth}px`;
+    preview.style.height = `${Math.max(120, Math.round(previewWidth * previewRatio))}px`;
+    if (widthValue) widthValue.textContent = `${Math.round(previewWidth)}px`;
+    if (saveIt) {
+      appData.theme.sidePhotoWidth = previewWidth;
+      save();
+    }
+    calculateBaseScale();
+    render();
+  }
+
+  // 기본 상태는 사진의 '세로'를 사진 프레임 높이에 정확히 맞춘다.
+  // 가로로 긴 사진은 좌우가 프레임 밖으로 나갈 수 있으며, 그 상태에서 휠/슬라이더로 더 확대한다.
+  function calculateBaseScale() {
+    const rect = preview.getBoundingClientRect();
+    const nw = img.naturalWidth || 1;
+    const nh = img.naturalHeight || 1;
+    baseScale = rect.height / nh;
+    if (!isFinite(baseScale) || baseScale <= 0) baseScale = 1;
+  }
+
+  function render() {
+    const nw = img.naturalWidth || 1;
+    const nh = img.naturalHeight || 1;
+    const w = nw * baseScale;
+    const h = nh * baseScale;
+    img.style.width = `${w}px`;
+    img.style.height = `${h}px`;
+    img.style.left = `calc(50% + ${x}%)`;
+    img.style.top = `calc(50% + ${y}%)`;
+    img.style.transform = `translate(-50%, -50%) scale(${z})`;
+    if (zoomControl) zoomControl.value = z;
+  }
+
+  function savePosition() {
+    appData.theme.sidePhotoZoom = z;
+    appData.theme.sidePhotoX = x;
+    appData.theme.sidePhotoY = y;
+    save();
+  }
+
+  function ready() {
+    applyPreviewWidth(false);
+  }
+  img.addEventListener("load", ready, {once:true});
+  if (img.complete) ready();
+
+  preview.addEventListener("wheel", e => {
+    e.preventDefault();
+    z = Math.min(3.5, Math.max(1, z + (e.deltaY < 0 ? 0.08 : -0.08)));
+    render();
+    savePosition();
+  }, {passive:false});
+
+  preview.addEventListener("pointerdown", e => {
+    if (e.button !== 0) return;
+    dragging = true;
+    preview.classList.add("dragging");
+    sx = e.clientX; sy = e.clientY; ox = x; oy = y;
+    preview.setPointerCapture(e.pointerId);
+  });
+
+  preview.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    const rect = preview.getBoundingClientRect();
+    x = Math.max(-150, Math.min(150, ox + ((e.clientX - sx) / rect.width) * 100));
+    y = Math.max(-150, Math.min(150, oy + ((e.clientY - sy) / rect.height) * 100));
+    render();
+  });
+
+  const stopDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    preview.classList.remove("dragging");
+    savePosition();
+  };
+  preview.addEventListener("pointerup", stopDrag);
+  preview.addEventListener("pointercancel", stopDrag);
+  preview.addEventListener("mouseleave", () => { if (dragging) stopDrag(); });
+
+  if (widthControl) {
+    widthControl.value = previewWidth;
+    if (widthValue) widthValue.textContent = `${Math.round(previewWidth)}px`;
+    widthControl.oninput = () => {
+      previewWidth = Math.max(90, Math.min(190, Number(widthControl.value)));
+      applyPreviewWidth(true);
+    };
+  }
+
+  if (zoomControl) {
+    zoomControl.value = z;
+    zoomControl.oninput = () => {
+      z = Math.max(1, Math.min(3.5, Number(zoomControl.value)));
+      render();
+      savePosition();
+    };
+  }
+  if (resetBtn) resetBtn.onclick = () => {
+    z = 1; x = 0; y = 0;
+    savePosition();
+    calculateBaseScale();
+    render();
+    if (zoomControl) zoomControl.value = 1;
+  };
+}
+function handleSidePhotoUpload(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    appData.theme.sidePhoto = e.target.result;
+    appData.theme.sidePhotoZoom = 1;
+    appData.theme.sidePhotoX = 0;
+    appData.theme.sidePhotoY = 0;
+    save();
+    renderSidePhotoEditor();
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ============================================================
+   CHARACTER OPERATIONS
+============================================================ */
+function addCharacter() {
+  const char = {
+    id: uid("character"),
+    name: "",
+    profileImage: "",
+    photoZoom: 1,
+    photoX: 0,
+    photoY: 0,
+    position: "",
+    department: "",
+    drinkingCapacity: 3,
+    drinkTypes: [],
+    role: "",
+    themeColor: nextCharColor()
+  };
+  appData.characters.push(char);
+  [1,2,3].forEach(r => {
+    appData.rounds[r].characters[char.id] = { seat: "", intoxication: 0, quote: "" };
+  });
+  save();
+  renderAll();
+}
+
+function deleteCharacter(id) {
+  showConfirmModal(
+    "정말 이 캐릭터를 삭제할까요?",
+    "1차/2차/3차에서 입력한 정보도 함께 삭제됩니다.",
+    () => {
+      appData.characters = appData.characters.filter(c => c.id !== id);
+      [1,2,3].forEach(r => {
+        delete appData.rounds[r].characters[id];
+        appData.rounds[r].questions.forEach(q => { delete q.answers[id]; });
+      });
+      save();
+      renderAll();
+    }
+  );
+}
+
+function updateCharacter(id, field, value) {
+  const c = appData.characters.find(c => c.id === id);
+  if (!c) return;
+  c[field] = value;
+  save();
+}
+
+function toggleDrinkType(id, type) {
+  const c = appData.characters.find(c => c.id === id);
+  if (!c) return;
+  const idx = c.drinkTypes.indexOf(type);
+  if (idx >= 0) c.drinkTypes.splice(idx, 1); else c.drinkTypes.push(type);
+  save();
+  renderAll();
+}
+
+function applySavedPhotoCrop(img, char) {
+  if (!img || !char) return;
+  const z = Math.max(1, Math.min(3.5, Number(char.photoZoom) || 1));
+  const x = Number(char.photoX) || 0;
+  const y = Number(char.photoY) || 0;
+  img.style.objectFit = "contain";
+  img.style.objectPosition = "center";
+  img.style.transform = `translate(${x}px, ${y}px) scale(${z})`;
+  img.style.transformOrigin = "center center";
+}
+
+function handlePhotoUpload(id, file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    updateCharacter(id, "profileImage", e.target.result);
+    renderAll();
+  };
+  reader.readAsDataURL(file);
+}
+
+
+/* ============================================================
+   PHOTO CROP / POSITION EDITOR
+============================================================ */
+function getPhotoCrop(id) {
+  const c = appData.characters.find(c => c.id === id);
+  return c ? c : null;
+}
+function openPhotoAdjuster(id) {
+  const c = getPhotoCrop(id);
+  if (!c || !c.profileImage) return;
+  const root = document.getElementById("modalRoot");
+  root.innerHTML = `
+    <div class="modal-overlay photo-adjust-modal" id="photoAdjustOverlay">
+      <div class="modal-box">
+        <h3>사진 보이는 영역 조정</h3>
+        <p>사진이 실제 카드에서 잘릴 영역을 미리 보면서 조정하세요.</p>
+        <div class="crop-editor">
+          <div class="crop-viewport" id="cropViewport">
+            <img class="crop-image" id="cropImage" src="${c.profileImage}" alt="">
+            <div class="crop-guide"></div>
+          </div>
+          <div class="crop-help">마우스 휠: 확대/축소 · 드래그: 사진 이동<br>원형 영역 안에 보이는 부분이 실제 PNG에 들어갑니다.</div>
+          <div class="crop-controls">
+            <label>확대</label>
+            <input class="crop-zoom" id="cropZoom" type="range" min="1" max="3.5" step="0.01" value="${c.photoZoom || 1}">
+            <button class="crop-reset" id="cropReset">원래대로</button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button id="cropCancel">취소</button>
+          <button class="danger" id="cropApply">적용</button>
+        </div>
+      </div>
+    </div>`;
+  const viewport = document.getElementById("cropViewport");
+  const img = document.getElementById("cropImage");
+  const zoom = document.getElementById("cropZoom");
+  let z = Math.max(1, c.photoZoom || 1);
+  let x = c.photoX || 0, y = c.photoY || 0;
+  let dragging = false, sx = 0, sy = 0, ox = 0, oy = 0;
+
+  function render() {
+    img.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(${z})`;
+    zoom.value = z;
+  }
+  img.onload = render;
+  if (img.complete) render();
+
+  zoom.addEventListener("input", () => { z = +zoom.value; render(); });
+  viewport.addEventListener("wheel", e => {
+    e.preventDefault();
+    z = Math.min(3.5, Math.max(1, z + (e.deltaY < 0 ? 0.08 : -0.08)));
+    render();
+  }, {passive:false});
+  viewport.addEventListener("pointerdown", e => {
+    dragging = true; viewport.classList.add("dragging");
+    sx=e.clientX; sy=e.clientY; ox=x; oy=y; viewport.setPointerCapture(e.pointerId);
+  });
+  viewport.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    x = Math.max(-150, Math.min(150, ox + e.clientX - sx));
+    y = Math.max(-150, Math.min(150, oy + e.clientY - sy));
+    render();
+  });
+  viewport.addEventListener("pointerup", () => { dragging=false; viewport.classList.remove("dragging"); });
+  viewport.addEventListener("pointercancel", () => { dragging=false; viewport.classList.remove("dragging"); });
+
+  document.getElementById("cropReset").addEventListener("click", () => { z=1; x=0; y=0; render(); });
+  document.getElementById("cropCancel").addEventListener("click", closeModal);
+  document.getElementById("photoAdjustOverlay").addEventListener("click", e => {
+    if (e.target.id === "photoAdjustOverlay") closeModal();
+  });
+  document.getElementById("cropApply").addEventListener("click", () => {
+    c.photoZoom = z; c.photoX = x; c.photoY = y;
+    save(); closeModal(); renderAll();
+  });
+}
+
+/* ============================================================
+   ROUND OPERATIONS
+============================================================ */
+function updateRoundField(roundNum, field, value) {
+  appData.rounds[roundNum][field] = value;
+  save();
+}
+
+function addQuestion(roundNum, text) {
+  appData.rounds[roundNum].questions.push({ id: uid("q"), text: text || "", answers: {} });
+  save();
+  renderAll();
+}
+
+function updateQuestionText(roundNum, qid, value) {
+  const q = appData.rounds[roundNum].questions.find(q => q.id === qid);
+  if (!q) return;
+  q.text = value;
+  save();
+}
+
+function updateQuestionAnswer(roundNum, qid, charId, value) {
+  const q = appData.rounds[roundNum].questions.find(q => q.id === qid);
+  if (!q) return;
+  q.answers[charId] = value;
+  save();
+}
+
+function deleteQuestion(roundNum, qid) {
+  appData.rounds[roundNum].questions = appData.rounds[roundNum].questions.filter(q => q.id !== qid);
+  save();
+  renderAll();
+}
+
+function updateRoundChar(roundNum, charId, field, value) {
+  if (!appData.rounds[roundNum].characters[charId]) {
+    appData.rounds[roundNum].characters[charId] = { seat: "", intoxication: 0, quote: "" };
+  }
+  appData.rounds[roundNum].characters[charId][field] = value;
+  save();
+}
+
+function endRound(roundNum) {
+  const n = parseInt(roundNum, 10);
+  const nextRounds = [2,3].filter(r => r > n);
+  const desc = n < 3
+    ? `${n}차에서 회식을 종료하면 이후 차수(${nextRounds.join("차, ")}차)의 정보가 모두 초기화됩니다.`
+    : `${n}차 회식을 종료할까요?`;
+  showConfirmModal(`${n}차에서 회식을 종료할까요?`, desc, () => {
+    appData.rounds[n].ended = true;
+    for (let m = n + 1; m <= 3; m++) {
+      appData.rounds[m] = freshRound(m);
+    }
+    save();
+    renderAll();
+  }, "종료하기");
+}
+
+function reopenRound(roundNum) {
+  const n = parseInt(roundNum, 10);
+  appData.rounds[n].ended = false;
+  save();
+  renderAll();
+}
+
+/* ============================================================
+   RENDER: SIDEBAR CHARACTERS
+============================================================ */
+function renderCharList() {
+  const list = document.getElementById("charList");
+  document.getElementById("charCount").textContent = `총 인원 ${appData.characters.length}명`;
+  list.innerHTML = "";
+
+  if (appData.characters.length === 0) {
+    const hint = document.createElement("div");
+    hint.className = "legend-card";
+    hint.innerHTML = `<span class="bear" style="font-size:22px;display:block;margin-bottom:4px;">🐻</span>아직 등록된 인원이 없어요.<br>아래 버튼으로 첫 인원을 추가해보세요!`;
+    hint.style.textAlign = "center";
+    list.appendChild(hint);
+  }
+
+  appData.characters.forEach(char => {
+    const collapsed = !!appData.ui.collapsedChars[char.id];
+    const card = document.createElement("div");
+    card.className = "char-card";
+    card.style.setProperty("--char-color", char.themeColor);
+
+    const avatarHtml = char.profileImage
+      ? `<img class="char-avatar" src="${char.profileImage}" alt="${escapeHtml(char.name || '프로필')}" data-char-id="${char.id}">`
+      : `<div class="char-avatar-placeholder">🐻</div>`;
+
+    card.innerHTML = `
+      <div class="char-card-top">
+        <div class="char-avatar-wrap">
+          ${avatarHtml}
+          <label class="avatar-upload-btn" title="사진 추가">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8a2 2 0 012-2h1l1.5-2h7L17 6h1a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V8z"/><circle cx="12" cy="13" r="3.2"/></svg>
+            <input type="file" accept="image/*" data-photo="${char.id}">
+          </label>
+        </div>
+        <div class="char-fields">
+          <div class="field-mini">
+            <span>이름</span>
+            <input class="name-input" placeholder="이름을 입력하세요" value="${escapeAttr(char.name)}" data-field="name" data-id="${char.id}">
+          </div>
+          <div class="two-col">
+            <div class="field-mini">
+              <span>직책</span>
+              <input placeholder="예) 팀장" value="${escapeAttr(char.position)}" data-field="position" data-id="${char.id}">
+            </div>
+            <div class="field-mini">
+              <span>부서</span>
+              <input placeholder="예) 개발팀" value="${escapeAttr(char.department)}" data-field="department" data-id="${char.id}">
+            </div>
+          </div>
+        </div>
+        <div class="char-card-actions">
+          <button class="collapse-btn ${collapsed ? 'collapsed' : ''}" data-toggle="${char.id}" title="접기/펼치기">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="text-btn" data-delete="${char.id}">삭제</button>
+        </div>
+      </div>
+
+      <div class="char-card-body ${collapsed ? 'collapsed' : ''}">
+        <div>
+          <span class="field-label">주량</span>
+          <div class="capacity-row">
+            <div class="stars" data-stars="${char.id}">
+              ${[1,2,3,4,5].map(n => `<button class="star-btn ${n <= char.drinkingCapacity ? 'filled' : ''}" data-star="${n}" data-id="${char.id}">${n <= char.drinkingCapacity ? '★' : '☆'}</button>`).join("")}
+            </div>
+            <div class="drink-summary">
+              <span class="drink-summary-label">주종</span>
+              <span class="drink-summary-value">${escapeHtml(char.drinkTypes.length ? char.drinkTypes.join(" · ") : "미선택")}</span>
+            </div>
+          </div>
+          <div class="capacity-desc">${CAP_DESC[Math.max(0,Math.min(4,char.drinkingCapacity-1))]}</div>
+        </div>
+
+        <div>
+          <span class="field-label">주종 (복수 선택)</span>
+          <div class="pill-group">
+            ${DRINK_TYPES.map(t => `<button class="pill ${char.drinkTypes.includes(t) ? 'active' : ''}" data-drinktype="${t}" data-id="${char.id}">${t}</button>`).join("")}
+          </div>
+        </div>
+
+        <div>
+          <span class="field-label">회식 때 담당</span>
+          <input class="role-input" placeholder="예) 고기 굽기, 분위기 띄우기" value="${escapeAttr(char.role)}" data-field="role" data-id="${char.id}">
+        </div>
+
+        <div class="themecolor-row">
+          <span class="label">캐릭터 테마색</span>
+          <input type="color" class="color-swatch-input" value="${char.themeColor}" data-themecolor="${char.id}" style="width:26px;height:26px;">
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+    const renderedAvatar = card.querySelector(".char-avatar");
+    applySavedPhotoCrop(renderedAvatar, char);
+  });
+
+  // bind events
+  list.querySelectorAll("[data-field]").forEach(el => {
+    el.addEventListener("input", () => {
+      updateCharacter(el.dataset.id, el.dataset.field, el.value);
+      if (el.dataset.field === "name") {
+        const name = el.value.trim() || "(이름 미입력)";
+        document.querySelectorAll(`[data-char-name="${el.dataset.id}"]`).forEach(node => { node.textContent = name; });
+      }
+    });
+  });
+  list.querySelectorAll("[data-photo]").forEach(el => {
+    el.addEventListener("change", () => handlePhotoUpload(el.dataset.photo, el.files[0]));
+  });
+  list.querySelectorAll("[data-delete]").forEach(el => {
+    el.addEventListener("click", () => deleteCharacter(el.dataset.delete));
+  });
+  list.querySelectorAll("[data-toggle]").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.dataset.toggle;
+      appData.ui.collapsedChars[id] = !appData.ui.collapsedChars[id];
+      save();
+      renderCharList();
+    });
+  });
+  list.querySelectorAll("[data-star]").forEach(el => {
+    el.addEventListener("click", () => {
+      updateCharacter(el.dataset.id, "drinkingCapacity", parseInt(el.dataset.star, 10));
+      renderCharList();
+    });
+  });
+  list.querySelectorAll("[data-drinktype]").forEach(el => {
+    el.addEventListener("click", () => toggleDrinkType(el.dataset.id, el.dataset.drinktype));
+  });
+  list.querySelectorAll("[data-themecolor]").forEach(el => {
+    el.addEventListener("input", () => {
+      const id = el.dataset.themecolor;
+      const c = appData.characters.find(x => x.id === id);
+      if (!c) return;
+      c.themeColor = el.value;
+      save();
+      document.querySelectorAll(`[data-char-id="${id}"]`).forEach(node => {
+        node.style.setProperty("--char-color", c.themeColor);
+        node.style.setProperty("--rc-color", c.themeColor);
+        node.style.setProperty("--qc", c.themeColor);
+      });
+    });
+  });
+}
+
+/* ============================================================
+   RENDER: ROUNDS
+============================================================ */
+const ROUND_META = { 1: { title: "1차" }, 2: { title: "2차" }, 3: { title: "3차" } };
+
+function getLastEndedRound() {
+  // '회식 종료'는 현재 차수를 잠그는 것이 아니라
+  // 그 다음 차수로 진행하지 않겠다는 의미입니다.
+  // 예: 2차 종료 -> 1·2차는 계속 수정 가능, 3차만 잠김.
+  let last = 0;
+  for (let n = 1; n <= 3; n++) {
+    if (appData.rounds[n] && appData.rounds[n].ended) last = n;
+  }
+  return last;
+}
+
+function renderRounds() {
+  const container = document.getElementById("roundsContainer");
+  container.innerHTML = "";
+
+  const lastEnded = getLastEndedRound();
+
+  for (let roundNum = 1; roundNum <= 3; roundNum++) {
+    container.appendChild(buildRoundCard(roundNum, lastEnded));
+
+    if (roundNum < 3) {
+      const sep = document.createElement("div");
+      sep.className = "round-separator";
+      if (appData.rounds[roundNum].ended) {
+        sep.innerHTML = `
+          <div class="round-separator-line"></div>
+          <button class="btn-reopen" data-reopenround="${roundNum}">↺ ${roundNum + 1}차 다시 열기</button>
+          <div class="round-separator-line"></div>`;
+      } else if (roundNum === lastEnded || lastEnded === 0) {
+        sep.innerHTML = `
+          <div class="round-separator-line"></div>
+          <button class="btn-end-between" data-endround="${roundNum}">🔚 ${roundNum}차 회식 종료</button>
+          <div class="round-separator-line"></div>`;
+      } else {
+        sep.innerHTML = `<div class="round-separator-line"></div><div class="round-separator-line"></div>`;
+      }
+      container.appendChild(sep);
+    }
+  }
+
+  bindRoundEvents();
+}
+
+function buildRoundCard(roundNum, lastEnded = getLastEndedRound()) {
+  const round = appData.rounds[roundNum];
+  const collapsed = !!appData.ui.collapsedRounds[roundNum];
+  // 핵심: 종료된 '현재 차수'는 잠그지 않는다.
+  // 종료된 차수보다 뒤의 차수만 잠근다.
+  const locked = lastEnded > 0 && roundNum > lastEnded;
+  const endedBoundary = !!round.ended;
+  const card = document.createElement("div");
+  card.className = "round-card" + (locked ? " ended" : "");
+  const roundColor = getRoundColor(roundNum);
+  card.style.setProperty("--rnd-color", roundColor);
+  card.style.setProperty("--rnd-text", getContrastText(roundColor));
+
+  const suggestions = DEFAULT_QUESTIONS[roundNum].filter(q => !round.questions.some(rq => rq.text === q));
+
+  card.innerHTML = `
+    <div class="round-header">
+      <div class="round-title-group">
+        <div class="round-badge heading-font">${roundNum}</div>
+        <h2 class="heading-font">${ROUND_META[roundNum].title}</h2>
+        <input class="round-subtitle-input" placeholder="오늘의 상황 한 줄" value="${escapeAttr(round.situation)}" data-situation="${roundNum}" ${locked ? "disabled" : ""}>
+        ${locked ? `<span class="ended-tag">🔒 ${roundNum}차 진입 전 종료됨</span>` : endedBoundary ? `<span class="ended-tag">🏁 이후 차수 종료</span>` : ""}
+      </div>
+      <div class="round-header-actions">
+        <div class="round-color-control"><span>테마</span><input type="color" class="color-swatch-input" value="${getRoundColor(roundNum)}" data-roundcolor="${roundNum}" title="${roundNum}차 테마색"></div>
+        ${locked ? `<button class="btn-reopen" data-reopenround="${lastEnded}">↺ ${lastEnded + 1 <= 3 ? lastEnded + 1 + "차 다시 열기" : "다시 열기"}</button>` : `<button class="btn-ghost" data-addq="${roundNum}">＋ 질문 추가</button>`}
+        <button class="collapse-btn ${collapsed ? 'collapsed' : ''}" data-toggleround="${roundNum}">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="round-body ${collapsed ? 'collapsed' : ''} ${locked ? 'locked' : ''}">
+      <div class="basic-fields">
+        <div class="basic-field">
+          <label>메뉴</label>
+          <input placeholder="예) 삼겹살, 회, 치킨" value="${escapeAttr(round.menu)}" data-menu="${roundNum}" ${locked ? "disabled" : ""}>
+        </div>
+        <div class="basic-field">
+          <label>상황</label>
+          <input placeholder="예) 첫 건배, 자기소개 타임" value="${escapeAttr(round.situationDesc || '')}" data-situationdesc="${roundNum}" ${locked ? "disabled" : ""}>
+        </div>
+        <div class="basic-field">
+          <label>장소</label>
+          <input placeholder="예) 회사 근처 고깃집" value="${escapeAttr(round.location)}" data-location="${roundNum}" ${locked ? "disabled" : ""}>
+        </div>
+      </div>
+
+      <div class="questions-section">
+        <div class="suggestion-row">
+          <span class="suggestion-pill label-pill">질문 예시</span>
+          ${suggestions.slice(0,4).map(q => `<button class="suggestion-pill" data-suggest="${roundNum}" data-qtext="${escapeAttr(q)}">${q}</button>`).join("")}
+          ${suggestions.length > 4 ? `<span class="suggestion-pill more">···</span>` : ""}
+        </div>
+        <div class="question-list">
+          ${round.questions.length === 0 ? `<div class="empty-hint">아직 등록된 질문이 없습니다. 위의 예시를 누르거나 '질문 추가'를 눌러보세요.</div>` : ""}
+          ${round.questions.map(q => buildQuestionCard(roundNum, q)).join("")}
+        </div>
+      </div>
+
+      <div class="char-rows" data-charrows="${roundNum}">
+        ${renderRoundCharRows(roundNum)}
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function buildQuestionCard(roundNum, q) {
+  const chars = appData.characters;
+  const answersHtml = chars.length === 0
+    ? `<div class="empty-hint">인원을 추가하면 캐릭터별로 답변을 남길 수 있어요.</div>`
+    : chars.map(char => {
+        const val = q.answers[char.id] || "";
+        const avatar = char.profileImage
+          ? `<img class="q-answer-avatar" style="--qc:${char.themeColor}" src="${char.profileImage}">`
+          : `<div class="q-answer-avatar-placeholder" style="--qc:${char.themeColor}">🐻</div>`;
+        return `
+          <div class="q-answer-row" data-char-id="${char.id}">
+            ${avatar}
+            <span class="q-answer-name" data-char-name="${char.id}">${escapeHtml(char.name) || "이름없음"}</span>
+            <input class="q-answer-input" style="--qc:${char.themeColor}" placeholder="답변을 입력하세요" value="${escapeAttr(val)}" data-qanswer="${roundNum}" data-qid="${q.id}" data-charid="${char.id}">
+          </div>
+        `;
+      }).join("");
+
+  return `
+    <div class="question-card">
+      <div class="question-card-header">
+        <input class="q-text" placeholder="질문을 입력하세요" value="${escapeAttr(q.text)}" data-qtext="${roundNum}" data-qid="${q.id}">
+        <button class="del-q" data-delq="${roundNum}" data-qid="${q.id}"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="q-answers">${answersHtml}</div>
+    </div>
+  `;
+}
+
+function renderRoundCharRows(roundNum) {
+  if (appData.characters.length === 0) {
+    return `<div class="empty-round-chars"><span class="bear">🐻</span>왼쪽에서 인원을 추가하면 이곳에 자동으로 표시됩니다.</div>`;
+  }
+  return appData.characters.map(char => {
+    const rc = appData.rounds[roundNum].characters[char.id] || { seat: "", intoxication: 0, quote: "" };
+    const pct = (rc.intoxication / 4) * 100;
+    const avatarHtml = char.profileImage
+      ? `<img class="rc-avatar" style="--rc-color:${char.themeColor}" src="${char.profileImage}">`
+      : `<div class="rc-avatar-placeholder" style="--rc-color:${char.themeColor}">🐻</div>`;
+
+    return `
+      <div class="round-char-row" data-char-id="${char.id}" style="--rc-color:${char.themeColor}">
+        <div class="rc-top">
+          ${avatarHtml}
+          <div class="rc-name" data-char-name="${char.id}">${escapeHtml(char.name) || "(이름 미입력)"}</div>
+        </div>
+        <div class="rc-grid">
+          <div class="rc-field">
+            <label>어디에 앉아?</label>
+            <select class="seat-select" data-seatselect="${roundNum}" data-charid="${char.id}">
+              ${SEAT_PRESETS.map(p => `<option value="${p === '직접 입력' ? '' : p}" ${ (p==='직접 입력' && !SEAT_PRESETS.slice(0,-1).includes(rc.seat) && rc.seat!=='') || (p===rc.seat) ? 'selected' : ''}>${p}</option>`).join("")}
+            </select>
+            ${(!SEAT_PRESETS.slice(0,-1).includes(rc.seat)) ? `<input class="seat-custom" placeholder="자리를 입력하세요" value="${escapeAttr(rc.seat)}" data-seatcustom="${roundNum}" data-charid="${char.id}">` : ""}
+          </div>
+
+          <div class="rc-field">
+            <label>취한 정도 <span class="info-dot">i</span></label>
+            <div class="intox-track">
+              <input type="range" class="intox-slider" min="0" max="4" step="1" value="${rc.intoxication}" style="--pct:${pct}%" data-intox="${roundNum}" data-charid="${char.id}">
+              <div class="intox-labels">
+                ${INTOX_LABELS.map((l,i) => `<span class="${i===rc.intoxication ? 'active' : ''}">${l}</span>`).join("")}
+              </div>
+            </div>
+          </div>
+
+          <div class="rc-field">
+            <label>한줄 대사</label>
+            <input class="quote-input" placeholder="예) 오늘은 내가 분위기 메이커!" value="${escapeAttr(rc.quote)}" data-quote="${roundNum}" data-charid="${char.id}">
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function bindRoundEvents() {
+  const container = document.getElementById("roundsContainer");
+
+  container.querySelectorAll("[data-menu]").forEach(el => el.addEventListener("input", () => updateRoundField(el.dataset.menu, "menu", el.value)));
+  container.querySelectorAll("[data-location]").forEach(el => el.addEventListener("input", () => updateRoundField(el.dataset.location, "location", el.value)));
+  container.querySelectorAll("[data-situationdesc]").forEach(el => el.addEventListener("input", () => updateRoundField(el.dataset.situationdesc, "situationDesc", el.value)));
+  container.querySelectorAll("[data-situation]").forEach(el => el.addEventListener("input", () => updateRoundField(el.dataset.situation, "situation", el.value)));
+  container.querySelectorAll("[data-roundcolor]").forEach(el => el.addEventListener("input", () => {
+    const n = el.dataset.roundcolor;
+    appData.theme.roundColors[n] = el.value;
+    const card = el.closest(".round-card");
+    if (card) card.style.setProperty("--rnd-color", el.value);
+    save();
+  }));
+
+  container.querySelectorAll("[data-addq]").forEach(el => el.addEventListener("click", () => addQuestion(el.dataset.addq, "")));
+  container.querySelectorAll("[data-suggest]").forEach(el => el.addEventListener("click", () => addQuestion(el.dataset.suggest, el.dataset.qtext)));
+  container.querySelectorAll("[data-qtext]").forEach(el => el.addEventListener("input", () => updateQuestionText(el.dataset.qtext, el.dataset.qid, el.value)));
+  container.querySelectorAll("[data-qanswer]").forEach(el => el.addEventListener("input", () => updateQuestionAnswer(el.dataset.qanswer, el.dataset.qid, el.dataset.charid, el.value)));
+  container.querySelectorAll("[data-delq]").forEach(el => el.addEventListener("click", () => deleteQuestion(el.dataset.delq, el.dataset.qid)));
+
+  container.querySelectorAll("[data-endround]").forEach(el => el.addEventListener("click", () => endRound(el.dataset.endround)));
+  container.querySelectorAll("[data-reopenround]").forEach(el => el.addEventListener("click", () => reopenRound(el.dataset.reopenround)));
+
+  container.querySelectorAll("[data-toggleround]").forEach(el => el.addEventListener("click", () => {
+    const r = el.dataset.toggleround;
+    appData.ui.collapsedRounds[r] = !appData.ui.collapsedRounds[r];
+    save();
+    renderRounds();
+  }));
+
+  container.querySelectorAll("[data-seatselect]").forEach(el => el.addEventListener("change", () => {
+    updateRoundChar(el.dataset.seatselect, el.dataset.charid, "seat", el.value);
+    renderRounds();
+  }));
+  container.querySelectorAll("[data-seatcustom]").forEach(el => el.addEventListener("input", () => {
+    updateRoundChar(el.dataset.seatcustom, el.dataset.charid, "seat", el.value);
+  }));
+  container.querySelectorAll("[data-intox]").forEach(el => {
+    el.addEventListener("input", () => {
+      const pct = (el.value / 4) * 100;
+      el.style.setProperty("--pct", pct + "%");
+      const labels = el.closest(".rc-field").querySelectorAll(".intox-labels span");
+      labels.forEach((l,i) => l.classList.toggle("active", i === parseInt(el.value,10)));
+    });
+    el.addEventListener("change", () => updateRoundChar(el.dataset.intox, el.dataset.charid, "intoxication", parseInt(el.value,10)));
+  });
+  container.querySelectorAll("[data-quote]").forEach(el => el.addEventListener("input", () => updateRoundChar(el.dataset.quote, el.dataset.charid, "quote", el.value)));
+}
+
+/* ============================================================
+   PNG EXPORT (fixed 16:9 summary card, not the whole scrolling page)
+============================================================ */
+function buildExportColumn(n) {
+  const round = appData.rounds[n];
+  const chars = appData.characters;
+  const color = getRoundColor(n);
+  const qaBlocks = round.questions.filter(q => q.text || Object.values(q.answers || {}).some(Boolean)).map(q => {
+    const answers = chars.map(char => {
+      const a = q.answers && q.answers[char.id];
+      return a ? `<span class="xcard-qa-row"><span class="xcard-qa-name" style="color:${char.themeColor}">${escapeHtml(char.name || "이름없음")}</span> ${escapeHtml(a)}</span>` : "";
+    }).filter(Boolean).join("");
+    return answers ? `<div class="xcard-qa"><div class="xcard-qa-title">Q. ${escapeHtml(q.text || "질문")}</div>${answers}</div>` : "";
+  }).join("");
+  const maxRows = 7;
+  const shown = chars.slice(0, maxRows);
+  const remaining = chars.length - shown.length;
+  const rowsHtml = shown.length === 0 ? `<div class="xcard-empty">🐻 등록된 인원이 없어요</div>` : shown.map(char => {
+    const rc = round.characters[char.id] || { seat: "", intoxication: 0, quote: "" };
+    const avatar = char.profileImage ? `<span class="xcard-avatar-frame" style="border:1.5px solid ${char.themeColor}"><img class="xcard-avatar" style="--char-color:${char.themeColor};transform:translate(${Number(char.photoX)||0}px,${Number(char.photoY)||0}px) scale(${Math.max(1,Math.min(3.5,Number(char.photoZoom)||1))});transform-origin:center center;" src="${char.profileImage}"></span>` : `<div class="xcard-avatar-ph" style="--char-color:${char.themeColor};border:1.5px solid ${char.themeColor}">🐻</div>`;
+    const sub = [rc.seat, INTOX_LABELS[rc.intoxication]].filter(Boolean).join(" · ");
+    return `<div class="xcard-row" style="--char-color:${char.themeColor}">${avatar}<div class="xcard-row-main"><div class="xcard-row-name">${escapeHtml(char.name) || "이름없음"}</div>${sub ? `<div class="xcard-row-sub">${escapeHtml(sub)}</div>` : ""}${rc.quote ? `<div class="xcard-row-quote">“${escapeHtml(rc.quote)}”</div>` : ""}</div></div>`;
+  }).join("") + (remaining > 0 ? `<div class="xcard-more">+${remaining}명 더</div>` : "");
+  const contrast = getContrastText(color);
+  return `<div class="xcard-col" style="--xround-color:${color};--xround-text:${contrast}"><div class="xcard-col-head"><div class="xcard-badge" style="background:${color};color:${contrast}">${n}</div><div class="xcard-col-title">${n}차</div><div class="xcard-round-meta"><span><b>메뉴</b>${escapeHtml(round.menu || "-")}</span><span><b>상황</b>${escapeHtml(round.situationDesc || round.situation || "-")}</span><span><b>장소</b>${escapeHtml(round.location || "-")}</span></div></div>${qaBlocks}<div class="xcard-rows">${rowsHtml}</div></div>`;
+}
+function buildFeaturedProfiles(colCount) {
+  const chars = appData.characters;
+  const colStyle = ` style="grid-template-columns:repeat(${Math.max(1, colCount || 1)},minmax(0,1fr))"`;
+  if (!chars.length) return `<div class="xcard-featured"${colStyle}><div class="xcard-empty">🐻 등록된 인원이 없어요</div></div>`;
+  const cards = chars.map(char => {
+    const avatar = char.profileImage
+      ? `<span class="xcard-feature-avatar-frame"><span class="xcard-feature-avatar" style="background-image:url('${char.profileImage}');transform:translate(${Number(char.photoX)||0}px,${Number(char.photoY)||0}px) scale(${Math.max(1,Math.min(3.5,Number(char.photoZoom)||1))});transform-origin:center center;"></span></span>`
+      : `<div class="xcard-feature-avatar-ph" style="--char-color:${char.themeColor}">🐻</div>`;
+    const meta = [char.position, char.department].filter(Boolean).join(" · ");
+    const cap = Math.max(0, Math.min(5, char.drinkingCapacity || 0));
+    const stars = "★".repeat(cap) + "☆".repeat(5 - cap);
+    const drinkTypes = char.drinkTypes && char.drinkTypes.length ? char.drinkTypes.join(" · ") : "미선택";
+    return `<div class="xcard-feature-card" style="--char-color:${char.themeColor}">${avatar}<div class="xcard-feature-info"><div class="xcard-feature-name">${escapeHtml(char.name || "이름없음")}</div>${meta ? `<div class="xcard-feature-meta">${escapeHtml(meta)}</div>` : ""}<div class="xcard-feature-stars">주량 : ${stars} <span style="color:var(--text-sub);font-size:11px;letter-spacing:0;">· 주종 : ${escapeHtml(drinkTypes)}</span></div>${char.role ? `<span class="xcard-feature-role">${escapeHtml(char.role)}</span>` : ""}</div></div>`;
+  }).join("");
+  return `<div class="xcard-featured"${colStyle}>${cards}</div>`;
+}
+function buildSideProfiles(roundCount, hideParticipants=false) {
+  const chars=appData.characters;
+  const cards=chars.map(char=>{
+    const avatar=char.profileImage?`<span class="xcard-profile-avatar-frame"><span class="xcard-profile-avatar" style="background-image:url('${char.profileImage}');transform:translate(${Number(char.photoX)||0}px,${Number(char.photoY)||0}px) scale(${Math.max(1,Math.min(3.5,Number(char.photoZoom)||1))});transform-origin:center center;"></span></span>`:`<span class="xcard-profile-avatar" style="background:${char.themeColor};display:flex;align-items:center;justify-content:center">🐻</span>`;
+    const detail=[char.position,char.department,char.role].filter(Boolean).join(" · ");
+    return `<div class="xcard-profile-card" style="--char-color:${char.themeColor}">${avatar}<div class="xcard-profile-info"><div class="xcard-profile-name">${escapeHtml(char.name||"이름없음")}</div>${detail?`<div class="xcard-profile-detail">${escapeHtml(detail)}</div>`:""}</div></div>`;
+  }).join("");
+  const t=appData.theme||{};
+  const sideX = Number(t.sidePhotoX) || 0;
+  const sideY = Number(t.sidePhotoY) || 0;
+  const sideZoom = Math.max(1, Math.min(3.5, Number(t.sidePhotoZoom) || 1));
+  const photo=t.sidePhoto?`<div class="xcard-side-photo"><img src="${t.sidePhoto}" alt="" data-side-photo-zoom="${sideZoom}" data-side-photo-x="${sideX}" data-side-photo-y="${sideY}"></div>`:"";
+  const top = hideParticipants ? "" : `<div class="xcard-side-top"><div class="xcard-side-title">참여 인원</div><div class="xcard-side-list">${cards}</div></div>`;
+  return `<div class="xcard-side" data-round-count="${roundCount}" data-hide-participants="${hideParticipants}">${top}${photo}</div>`;
+}
+function buildExportCard() {
+  const activeRounds = [];
+  for (let n = 1; n <= 3; n++) { activeRounds.push(n); if (appData.rounds[n].ended) break; }
+  const title = (appData.theme.exportTitle || "").trim() || "회식 기록";
+  const artCredit = (appData.theme.artCredit || "").trim();
+  const root = document.createElement("div"); root.className = "xcard-root"; root.id = "exportCardRoot";
+  const hideParticipantsInPng = appData.characters.length >= 3;
+  const creditHtml = `<div class="xcard-credit-row"><span class="xcard-credit">@핑담곰 회식가자</span>${artCredit ? `<span class="xcard-credit xcard-credit-art">${escapeHtml(artCredit)}</span>` : ""}</div>`;
+  const colCount = activeRounds.length;
+  const columnsHtml = `<div class="xcard-columns" style="grid-template-columns:repeat(${Math.max(1, colCount)},minmax(0,1fr))">${activeRounds.map(buildExportColumn).join("")}</div>`;
+  root.innerHTML = `<div class="xcard-header"><div class="xcard-title">${escapeHtml(title)}</div></div><div class="xcard-shell"><div class="xcard-main">${buildFeaturedProfiles(colCount)}${columnsHtml}</div>${buildSideProfiles(colCount, hideParticipantsInPng)}</div>${creditHtml}`;
+  document.body.appendChild(root);
+
+  // 오른쪽 영역을 왼쪽 카드와 정확히 맞춘다.
+  // 상단 참여인원 영역의 바닥은 상단 프로필 카드(.xcard-featured)의 바닥에,
+  // 하단 사진 영역은 1/2/3차 카드(.xcard-columns)의 시작~끝에 정확히 맞춘다.
+  const shell = root.querySelector(".xcard-shell");
+  const featured = root.querySelector(".xcard-featured");
+  const columns = root.querySelector(".xcard-columns");
+  const side = root.querySelector(".xcard-side");
+  const sideTop = root.querySelector(".xcard-side-top");
+  const sidePhoto = root.querySelector(".xcard-side-photo");
+  if (shell && featured && columns && side) {
+    const shellRect = shell.getBoundingClientRect();
+    const featuredRect = featured.getBoundingClientRect();
+    const columnsRect = columns.getBoundingClientRect();
+    const featuredTop = Math.max(0, featuredRect.top - shellRect.top);
+    const featuredH = Math.max(0, featuredRect.height);
+    const columnsTop = Math.max(0, columnsRect.top - shellRect.top);
+    const columnsH = Math.max(0, columnsRect.height);
+
+    // 참여인원은 프로필 영역과 같은 시작점에서 정렬하되,
+    // 내용이 많아도 절대 잘리지 않게 실제 콘텐츠 높이를 먼저 확보한다.
+    // 사진은 참여인원과 겹치지 않는 지점부터 회식 카드의 하단까지 사용한다.
+    let participantsH = featuredH;
+    if (sideTop) {
+      sideTop.style.position = "absolute";
+      sideTop.style.left = "0";
+      sideTop.style.top = `${featuredTop}px`;
+      sideTop.style.width = "100%";
+      sideTop.style.height = "auto";
+      sideTop.style.minHeight = `${featuredH}px`;
+      sideTop.style.boxSizing = "border-box";
+      sideTop.style.overflow = "visible";
+      // 레이아웃 적용 후 실제 필요한 높이를 측정한다.
+      participantsH = Math.max(featuredH, sideTop.scrollHeight);
+      sideTop.style.height = `${participantsH}px`;
+    }
+    const columnsBottom = columnsTop + columnsH;
+    const photoTop = Math.max(columnsTop, featuredTop + participantsH);
+    const photoHeight = Math.max(0, columnsBottom - photoTop);
+    side.style.setProperty("--side-photo-top", `${photoTop}px`);
+    side.style.setProperty("--side-photo-height", `${photoHeight}px`);
+  }
+  const exportPhoto = root.querySelector(".xcard-side-photo img");
+  if (exportPhoto) {
+    const frame = exportPhoto.parentElement;
+    const fit = () => {
+      const nw = exportPhoto.naturalWidth || 1, nh = exportPhoto.naturalHeight || 1;
+      const base = frame.clientHeight / nh;
+      const z = Number(exportPhoto.dataset.sidePhotoZoom) || 1;
+      const x = Number(exportPhoto.dataset.sidePhotoX) || 0;
+      const y = Number(exportPhoto.dataset.sidePhotoY) || 0;
+      exportPhoto.style.width = `${nw * base}px`;
+      exportPhoto.style.height = `${nh * base}px`;
+      exportPhoto.style.left = `calc(50% + ${x}% )`;
+      exportPhoto.style.top = `calc(50% + ${y}% )`;
+      exportPhoto.style.transform = `translate(-50%,-50%) scale(${z})`;
+    };
+    exportPhoto.addEventListener("load", fit, {once:true});
+    if (exportPhoto.complete) fit();
+  }
+  return root;
+}
+async function exportAsPng() {
+  const btn = document.getElementById("exportPngBtn"), original = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = "저장 중..."; let cardEl = null;
+  try {
+    cardEl = buildExportCard();
+    await new Promise(r => setTimeout(r, 120));
+    // Capture the entire generated card first so nothing is clipped, then
+    // fit it into the required 1920x1080 (16:9) output canvas.
+    const capture = await html2canvas(cardEl, {
+      backgroundColor: "#FFFFFF",
+      scale: 1.2,
+      width: cardEl.scrollWidth,
+      height: cardEl.scrollHeight,
+      windowWidth: cardEl.scrollWidth,
+      windowHeight: cardEl.scrollHeight,
+      useCORS: true,
+      logging: false
+    });
+    // Default to a 16:9 (1920x1080) canvas. The width always stays 1920 so
+    // the base shape is 16:9; if the content is taller than that once
+    // scaled to 1920 wide, the canvas height grows to fit everything
+    // instead of squeezing or cropping it.
+    const targetWidth = 1920;
+    const scale = targetWidth / capture.width;
+    const scaledHeight = Math.round(capture.height * scale);
+    const outHeight = Math.max(1080, scaledHeight);
+    const output = document.createElement("canvas");
+    output.width = targetWidth; output.height = outHeight;
+    const ctx = output.getContext("2d");
+    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, targetWidth, outHeight);
+    const dy = Math.round((outHeight - scaledHeight) / 2);
+    ctx.drawImage(capture, 0, dy, targetWidth, scaledHeight);
+    const link = document.createElement("a");
+    link.download = "핑담곰_회식_카드.png";
+    link.href = output.toDataURL("image/png");
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  } catch (e) { console.error(e); alert("PNG 저장에 실패했어요. 잠시 후 다시 시도해주세요."); }
+  finally { if (cardEl) cardEl.remove(); btn.disabled=false; btn.innerHTML=original; }
+}
+
+/* ============================================================
+   MODAL
+============================================================ */
+function showConfirmModal(title, desc, onConfirm, confirmLabel) {
+  const root = document.getElementById("modalRoot");
+  root.innerHTML = `
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal-box">
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(desc)}</p>
+        <div class="modal-actions">
+          <button id="modalCancel">취소</button>
+          <button class="danger" id="modalConfirm">${escapeHtml(confirmLabel || "삭제")}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("modalCancel").addEventListener("click", closeModal);
+  document.getElementById("modalOverlay").addEventListener("click", (e) => { if (e.target.id === "modalOverlay") closeModal(); });
+  document.getElementById("modalConfirm").addEventListener("click", () => { onConfirm(); closeModal(); });
+}
+function closeModal() { document.getElementById("modalRoot").innerHTML = ""; }
+
+/* ============================================================
+   UTIL
+============================================================ */
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str).replace(/[&<>"']/g, m => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m]));
+}
+function escapeAttr(str) { return escapeHtml(str); }
+
+/* ============================================================
+   INIT
+============================================================ */
+function renderAll() {
+  applyMainTheme();
+  renderCharList();
+  renderRounds();
+  renderSidePhotoEditor();
+}
+
+document.getElementById("addCharBtn").addEventListener("click", addCharacter);
+document.getElementById("addCharBtnBottom").addEventListener("click", addCharacter);
+document.getElementById("mainThemeColor").addEventListener("input", (e) => {
+  appData.theme.primaryColor = e.target.value;
+  applyMainTheme();
+  save();
+});
+document.getElementById("exportTitleInput").value = appData.theme.exportTitle || "";
+document.getElementById("exportTitleInput").addEventListener("input", (e) => { appData.theme.exportTitle = e.target.value; save(); });
+document.getElementById("artCreditInput").value = appData.theme.artCredit || "";
+document.getElementById("artCreditInput").addEventListener("input", (e) => { appData.theme.artCredit = e.target.value; save(); });
+document.getElementById("exportPngBtn").addEventListener("click", exportAsPng);
+document.getElementById("sidePhotoInput").addEventListener("change", e=>{handleSidePhotoUpload(e.target.files[0]);e.target.value="";});
+document.getElementById("sidePhotoRemoveBtn").addEventListener("click", ()=>{appData.theme.sidePhoto="";appData.theme.sidePhotoZoom=1;appData.theme.sidePhotoX=0;appData.theme.sidePhotoY=0;save();renderSidePhotoEditor();});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  showConfirmModal("전체 데이터를 초기화할까요?", "인원 정보와 1차/2차/3차 회식 상황이 모두 삭제되며 되돌릴 수 없습니다.", () => {
+    localStorage.removeItem(STORAGE_KEY);
+    appData = loadData();
+    renderAll();
+  }, "초기화");
+});
+
+renderAll();
+</script>
+</body>
+</html>
